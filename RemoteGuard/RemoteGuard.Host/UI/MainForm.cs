@@ -91,7 +91,7 @@ public sealed class MainForm : Form
         var brandIcon = LoadBrandIcon();
         Icon = brandIcon;
 
-        Text = "RemoteGuard Host • FAIM BD — 24/7 Secure Remote Control";
+        Text = "RemoteGuard Host v1.1.0 • FAIM BD — 24/7 Secure Remote Control";
         Size = new Size(920, 680);
         MinimumSize = new Size(860, 620);
         StartPosition = FormStartPosition.CenterScreen;
@@ -185,7 +185,7 @@ public sealed class MainForm : Form
 
         var lblTitle = new Label
         {
-            Text = "RemoteGuard • FAIM BD",
+            Text = "RemoteGuard • FAIM BD  v1.1.0",
             Font = new Font("Segoe UI Semibold", 16f),
             ForeColor = Accent,
             BackColor = Color.Transparent,

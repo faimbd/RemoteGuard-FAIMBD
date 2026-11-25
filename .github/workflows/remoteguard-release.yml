@@ -93,30 +93,36 @@ jobs:
         run: |
           gradle assembleRelease --no-daemon --console=plain
 
-      - name: Prepare final release files and SHA-256 checksums
+      - name: Prepare final versioned release files and SHA-256 checksums
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "./dist/final" | Out-Null
+          $tag = "${{ github.event.inputs.release_tag || github.ref_name }}"
+          $ver = $tag -replace '^remoteguard-', ''
+          $exeName = "RemoteGuard.Host-$ver.exe"
+          $apkName = "RemoteGuard-$ver.apk"
 
           if (Test-Path "./dist/signed/RemoteGuard.Host.exe") {
-            Copy-Item "./dist/signed/RemoteGuard.Host.exe" "./dist/final/RemoteGuard.Host.exe"
+            Copy-Item "./dist/signed/RemoteGuard.Host.exe" "./dist/final/$exeName"
             Write-Host "Using SignPath-SIGNED executable."
             "SIGN_STATUS=Signed by SignPath Foundation" >> $env:GITHUB_ENV
           } else {
-            Copy-Item "./dist/unsigned/RemoteGuard.Host.exe" "./dist/final/RemoteGuard.Host.exe"
+            Copy-Item "./dist/unsigned/RemoteGuard.Host.exe" "./dist/final/$exeName"
             Write-Host "Using UNSIGNED executable (SignPath secrets not configured yet)."
             "SIGN_STATUS=Unsigned (Initial Open-Source Build)" >> $env:GITHUB_ENV
           }
 
-          Copy-Item "RemoteGuard/RemoteGuard.Android/app/build/outputs/apk/release/app-release.apk" "./dist/final/RemoteGuard.apk"
+          Copy-Item "RemoteGuard/RemoteGuard.Android/app/build/outputs/apk/release/app-release.apk" "./dist/final/$apkName"
 
-          $exeHash = (Get-FileHash "./dist/final/RemoteGuard.Host.exe" -Algorithm SHA256).Hash
-          $apkHash = (Get-FileHash "./dist/final/RemoteGuard.apk" -Algorithm SHA256).Hash
+          $exeHash = (Get-FileHash "./dist/final/$exeName" -Algorithm SHA256).Hash
+          $apkHash = (Get-FileHash "./dist/final/$apkName" -Algorithm SHA256).Hash
           @(
-            "$exeHash  RemoteGuard.Host.exe"
-            "$apkHash  RemoteGuard.apk"
+            "$exeHash  $exeName"
+            "$apkHash  $apkName"
           ) | Out-File -FilePath "./dist/final/SHA256SUMS.txt" -Encoding ascii
 
+          "EXE_NAME=$exeName" >> $env:GITHUB_ENV
+          "APK_NAME=$apkName" >> $env:GITHUB_ENV
           "EXE_SHA256=$exeHash" >> $env:GITHUB_ENV
           "APK_SHA256=$apkHash" >> $env:GITHUB_ENV
 
@@ -131,15 +137,15 @@ jobs:
             Privacy-first 24/7 Windows Remote Control with Dedicated Android App.
 
             - **Windows Code Signing Status:** ${{ env.SIGN_STATUS }}
-            - **SHA-256 (`RemoteGuard.Host.exe`):** `${{ env.EXE_SHA256 }}`
-            - **SHA-256 (`RemoteGuard.apk`):** `${{ env.APK_SHA256 }}`
+            - **SHA-256 (`${{ env.EXE_NAME }}`):** `${{ env.EXE_SHA256 }}`
+            - **SHA-256 (`${{ env.APK_NAME }}`):** `${{ env.APK_SHA256 }}`
 
             ### Highlights
             - **3-Layer Privacy:** Cryptographic Device Trust + Android Fingerprint + Conditional Master Password (only on IP change, VPN, or new device)
             - **24/7 Always-On & Lock-Screen Service:** Laptop Lid Close = Do Nothing, Never Auto-Sleep/Hibernate, LocalSystem Lock-Screen access
-            - **Dual-Screen Switcher & Landscape Mouse Mode:** Switch Screen 1 / Screen 2 / All Screens, Landscape default, Touch & Keyboard Yes/No toggles
-            - **Zero Port Forwarding:** Built-in Cloudflare Tunnel + QR Code Pairing + Diagnostic Log
+            - **Dual-Screen Switcher & Landscape Mouse Mode:** Switch Screen 1 / Screen 2 / All Screens, Landscape default, Touch & Keyboard Yes/No toggles, smooth 2-finger pan/zoom
+            - **Zero Port Forwarding:** Built-in Cloudflare Tunnel + Auto Tunnel URL QR Code + Diagnostic Log
           files: |
-            ./dist/final/RemoteGuard.Host.exe
-            ./dist/final/RemoteGuard.apk
+            ./dist/final/*.exe
+            ./dist/final/*.apk
             ./dist/final/SHA256SUMS.txt
