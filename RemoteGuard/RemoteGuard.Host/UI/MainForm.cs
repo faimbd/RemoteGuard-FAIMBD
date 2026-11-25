@@ -272,10 +272,23 @@ public sealed class MainForm : Form
         btnCopyLan.Click += (_, _) => CopyText(_txtLanUrl.Text);
 
         var lbl2 = new Label { Text = "Internet Tunnel URL (Anywhere via Mobile Data / Wi-Fi)", ForeColor = Accent, AutoSize = true, Location = new Point(14, 76) };
-        _txtTunnelUrl = new TextBox { Location = new Point(14, 98), Width = 400, ReadOnly = true, BackColor = BgDark, ForeColor = AccentGreen, BorderStyle = BorderStyle.FixedSingle, Text = "(Click 'Start Internet Tunnel' below)" };
-        var btnCopyTun = MakeButton("Copy", Color.FromArgb(51, 65, 85), 76, 26);
-        btnCopyTun.Location = new Point(422, 97);
+        _txtTunnelUrl = new TextBox { Location = new Point(14, 98), Width = 330, ReadOnly = true, BackColor = BgDark, ForeColor = AccentGreen, BorderStyle = BorderStyle.FixedSingle, Text = "(Click 'Start Internet Tunnel' below)" };
+        var btnCopyTun = MakeButton("Copy", Color.FromArgb(51, 65, 85), 68, 26);
+        btnCopyTun.Location = new Point(350, 97);
         btnCopyTun.Click += (_, _) => CopyText(_txtTunnelUrl.Text);
+
+        var btnTunnelQr = MakeButton("URL QR", Color.FromArgb(180, 130, 20), 76, 26);
+        btnTunnelQr.Location = new Point(422, 97);
+        btnTunnelQr.Click += (_, _) =>
+        {
+            string url = _txtTunnelUrl.Text.Trim();
+            if (!url.StartsWith("ws", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Start Internet Tunnel first to generate a Tunnel URL QR code.", "Tunnel URL QR", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            RenderQrCode(url, _store.ActivePairingCode ?? "");
+        };
 
         var lblTok = new Label { Text = "Optional: Cloudflare Named Tunnel Token (blank = free Quick Tunnel)", ForeColor = TextMuted, AutoSize = true, Location = new Point(14, 136) };
         _txtTunnelToken = new TextBox { Location = new Point(14, 158), Width = 484, BackColor = BgDark, ForeColor = TextPrimary, BorderStyle = BorderStyle.FixedSingle, UseSystemPasswordChar = true };
@@ -307,7 +320,7 @@ public sealed class MainForm : Form
             Font = new Font("Consolas", 8.5f)
         };
 
-        left.Controls.AddRange(new Control[] { lbl1, _txtLanUrl, btnCopyLan, lbl2, _txtTunnelUrl, btnCopyTun, lblTok, _txtTunnelToken, _btnTunnelToggle, btnFirewall, lblLog, _txtTunnelLog });
+        left.Controls.AddRange(new Control[] { lbl1, _txtLanUrl, btnCopyLan, lbl2, _txtTunnelUrl, btnCopyTun, btnTunnelQr, lblTok, _txtTunnelToken, _btnTunnelToggle, btnFirewall, lblLog, _txtTunnelLog });
 
         // Right panel: QR Code & Pairing
         var right = new Panel { Dock = DockStyle.Fill, BackColor = CardDark, Padding = new Padding(14) };
@@ -570,8 +583,8 @@ public sealed class MainForm : Form
         {
             string wssUrl = url.Replace("https://", "wss://") + "/ws";
             _txtTunnelUrl.Text = wssUrl;
-            if (!string.IsNullOrEmpty(_store.ActivePairingCode))
-                RenderQrCode(wssUrl, _store.ActivePairingCode);
+            // Always auto-render QR code for the new Internet Tunnel URL (includes pairing code if active)
+            RenderQrCode(wssUrl, _store.ActivePairingCode ?? "");
         });
         _tunnel.TunnelLog += line => BeginInvoke(() =>
         {

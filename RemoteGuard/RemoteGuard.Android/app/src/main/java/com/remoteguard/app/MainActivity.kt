@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
                 val norm = normalizeUrl(scannedUrl)
                 etServerUrl.setText(norm)
                 store.serverUrl = norm
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText("RemoteGuard URL", norm))
             }
             if (scannedCode.isNotBlank()) {
                 etPairingCode.setText(scannedCode)
@@ -79,14 +81,21 @@ class MainActivity : AppCompatActivity() {
             if (scannedHost.isNotBlank()) {
                 store.hostName = scannedHost
             }
-            Toast.makeText(this, "QR Scanned! URL & Code filled.", Toast.LENGTH_SHORT).show()
+            val msg = if (scannedCode.isNotBlank()) {
+                "QR Scanned! URL & Code filled + URL copied."
+            } else {
+                "Tunnel URL scanned, filled & copied to clipboard!"
+            }
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             ConnectionLogStore.log("QR", "Parsed URL=$scannedUrl Code=$scannedCode Host=$scannedHost")
         } catch (_: Exception) {
             // If user scanned a plain URL QR
             val norm = normalizeUrl(raw)
             etServerUrl.setText(norm)
             store.serverUrl = norm
-            Toast.makeText(this, "URL filled from QR.", Toast.LENGTH_SHORT).show()
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            cm.setPrimaryClip(ClipData.newPlainText("RemoteGuard URL", norm))
+            Toast.makeText(this, "Tunnel URL filled & copied to clipboard!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -127,6 +136,15 @@ class MainActivity : AppCompatActivity() {
         swKeyboardEnabled.setOnCheckedChangeListener { _, isChecked -> store.keyboardEnabled = isChecked }
 
         etServerUrl.setText(store.serverUrl)
+
+        findViewById<Button>(R.id.btnCopyUrl).setOnClickListener {
+            val u = etServerUrl.text.toString().trim()
+            if (u.isNotBlank()) {
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText("RemoteGuard URL", u))
+                Toast.makeText(this, "Tunnel URL copied!", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         btnScanQr.setOnClickListener {
             val opts = ScanOptions().apply {
