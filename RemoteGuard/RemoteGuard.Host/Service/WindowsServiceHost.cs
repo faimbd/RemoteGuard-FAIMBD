@@ -168,10 +168,19 @@ public sealed class RemoteGuardWindowsService : BackgroundService
         string exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
         if (string.IsNullOrEmpty(exePath)) return (false, "Cannot locate executable path.");
 
-        // Remove old if exists
+        // Remove old if exists and terminate any lingering old --agent processes
         RunSc($"stop {ServiceName}");
         RunSc($"delete {ServiceName}");
-        Thread.Sleep(500);
+        Thread.Sleep(800);
+        int myPid = Environment.ProcessId;
+        foreach (var proc in Process.GetProcessesByName("RemoteGuard.Host"))
+        {
+            if (proc.Id != myPid)
+            {
+                try { proc.Kill(entireProcessTree: true); } catch { }
+            }
+        }
+        Thread.Sleep(400);
 
         var (okCreate, outCreate) = RunSc($"create {ServiceName} binPath= \"\\\"{exePath}\\\" --service\" start= auto obj= LocalSystem DisplayName= \"RemoteGuard 24/7 Lock-Screen Host\"");
         if (!okCreate) return (false, outCreate);

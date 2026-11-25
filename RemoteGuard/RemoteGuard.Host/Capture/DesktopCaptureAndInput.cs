@@ -98,7 +98,21 @@ public sealed class DesktopCaptureAndInput
             int h = GetSystemMetrics(SM_CYSCREEN);
             list.Add(new MonitorDescriptor(0, $"Screen 1 (Primary {w}x{h})", 0, 0, Math.Max(1, w), Math.Max(1, h), true));
         }
-        return list;
+
+        // Always order Primary monitor first as Screen 1 (index 0), then secondary monitors
+        var ordered = list
+            .OrderByDescending(m => m.IsPrimary)
+            .ThenBy(m => m.Left)
+            .ThenBy(m => m.Top)
+            .Select((m, i) => m with
+            {
+                Index = i,
+                Name = m.IsPrimary
+                    ? $"Screen {i + 1} (Primary {m.Width}x{m.Height})"
+                    : $"Screen {i + 1} ({m.Width}x{m.Height})"
+            })
+            .ToList();
+        return ordered;
     }
 
     private static (int X, int Y, int W, int H) GetCaptureBounds(int monitorIndex)
@@ -166,6 +180,9 @@ public sealed class DesktopCaptureAndInput
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool SetCursorPos(int X, int Y);
+
+    [DllImport("user32.dll")]
+    private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool SetProcessDpiAwarenessContext(IntPtr value);
@@ -399,7 +416,7 @@ public sealed class DesktopCaptureAndInput
         void MoveCursor()
         {
             SetCursorPos(px, py);
-            SendMouse(absX, absY, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK, 0);
+            mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK, absX, absY, 0, UIntPtr.Zero);
         }
 
         switch (action.ToLowerInvariant())
@@ -409,43 +426,43 @@ public sealed class DesktopCaptureAndInput
                 break;
             case "down":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_LEFTDOWN, 0);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "up":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_LEFTUP, 0);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "click":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_LEFTDOWN, 0);
-                Thread.Sleep(15);
-                SendMouse(0, 0, MOUSEEVENTF_LEFTUP, 0);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(20);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "dblclick":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_LEFTDOWN, 0);
-                Thread.Sleep(15);
-                SendMouse(0, 0, MOUSEEVENTF_LEFTUP, 0);
-                Thread.Sleep(45);
-                SendMouse(0, 0, MOUSEEVENTF_LEFTDOWN, 0);
-                Thread.Sleep(15);
-                SendMouse(0, 0, MOUSEEVENTF_LEFTUP, 0);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(20);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(50);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(20);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "rclick":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_RIGHTDOWN, 0);
-                Thread.Sleep(15);
-                SendMouse(0, 0, MOUSEEVENTF_RIGHTUP, 0);
+                mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(20);
+                mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "mclick":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_MIDDLEDOWN, 0);
-                Thread.Sleep(15);
-                SendMouse(0, 0, MOUSEEVENTF_MIDDLEUP, 0);
+                mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(20);
+                mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, UIntPtr.Zero);
                 break;
             case "wheel":
                 MoveCursor();
-                SendMouse(0, 0, MOUSEEVENTF_WHEEL, unchecked((uint)wheelDelta));
+                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)wheelDelta), UIntPtr.Zero);
                 break;
         }
     }

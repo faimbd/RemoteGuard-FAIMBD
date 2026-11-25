@@ -50,7 +50,9 @@ class RemoteDesktopView @JvmOverloads constructor(
     private var cursorNormY = 0.5
     private var lastTouchX = 0f
     private var lastTouchY = 0f
-    private var isTwoFingerScrolling = false
+    private var isTwoFingerGesture = false
+    private var lastTwoFingerX = 0f
+    private var lastTwoFingerY = 0f
     private var lastScrollY = 0f
 
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -177,33 +179,55 @@ class RemoteDesktopView @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
-        gestureDetector.onTouchEvent(event)
 
-        if (event.pointerCount == 2) {
+        if (event.pointerCount >= 2) {
+            val midX = (event.getX(0) + event.getX(1)) / 2f
+            val midY = (event.getY(0) + event.getY(1)) / 2f
             when (event.actionMasked) {
                 MotionEvent.ACTION_POINTER_DOWN -> {
-                    isTwoFingerScrolling = true
-                    lastScrollY = (event.getY(0) + event.getY(1)) / 2f
+                    isTwoFingerGesture = true
+                    lastTwoFingerX = midX
+                    lastTwoFingerY = midY
+                    lastScrollY = midY
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (isTwoFingerScrolling && !scaleDetector.isInProgress) {
-                        val avgY = (event.getY(0) + event.getY(1)) / 2f
-                        val dy = avgY - lastScrollY
-                        if (kotlin.math.abs(dy) > 12f) {
-                            val wheelDelta = if (dy > 0) -120 else 120
-                            mouseListener?.onMouseEvent("wheel", cursorNormX, cursorNormY, wheelDelta)
-                            lastScrollY = avgY
+                    if (isTwoFingerGesture) {
+                        val dx = midX - lastTwoFingerX
+                        val dy = midY - lastTwoFingerY
+                        lastTwoFingerX = midX
+                        lastTwoFingerY = midY
+
+                        if (zoom > 1.02f) {
+                            // Silky-smooth 2-finger pan anywhere across the zoomed screen!
+                            panX += dx
+                            panY += dy
+                            invalidate()
+                        } else if (!scaleDetector.isInProgress) {
+                            // At 100% zoom, 2-finger vertical drag scrolls the PC wheel
+                            val scrollDy = midY - lastScrollY
+                            if (kotlin.math.abs(scrollDy) > 14f) {
+                                val wheelDelta = if (scrollDy > 0) -120 else 120
+                                mouseListener?.onMouseEvent("wheel", cursorNormX, cursorNormY, wheelDelta)
+                                lastScrollY = midY
+                            }
                         }
                     }
                 }
-                MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
-                    isTwoFingerScrolling = false
+                MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    isTwoFingerGesture = false
                 }
             }
             return true
         }
 
-        if (scaleDetector.isInProgress || isTwoFingerScrolling) return true
+        if (isTwoFingerGesture || scaleDetector.isInProgress) {
+            if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {
+                isTwoFingerGesture = false
+            }
+            return true
+        }
+
+        gestureDetector.onTouchEvent(event)
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -216,12 +240,8 @@ class RemoteDesktopView @JvmOverloads constructor(
                 lastTouchX = event.x
                 lastTouchY = event.y
 
-                if (zoom > 1.05f && !trackpadMode) {
-                    panX += dx
-                    panY += dy
-                    invalidate()
-                } else if (trackpadMode) {
-                    val sensitivity = 1.4 / max(width, 1)
+                if (trackpadMode) {
+                    val sensitivity = 1.5 / max(width, 1)
                     cursorNormX = (cursorNormX + dx * sensitivity).coerceIn(0.0, 1.0)
                     cursorNormY = (cursorNormY + dy * sensitivity).coerceIn(0.0, 1.0)
                     mouseListener?.onMouseEvent("move", cursorNormX, cursorNormY)
