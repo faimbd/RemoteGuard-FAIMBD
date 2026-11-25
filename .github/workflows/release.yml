@@ -1,0 +1,120 @@
+name: Build, Sign & Release Portable EXE
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release version tag (e.g. v1.1.0)'
+        required: true
+        default: 'v1.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish standalone portable EXE (win-x64)
+        shell: pwsh
+        run: |
+          dotnet publish "WinFixCleanPortable/WinFixCleanPortable.csproj" `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o "./dist/unsigned"
+
+          ls ./dist/unsigned
+
+      - name: Upload unsigned artifact for SignPath verification
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinFixCleanPortable-unsigned
+          path: ./dist/unsigned/WinFixCleanPortable.exe
+
+      # SignPath Foundation Code Signing (runs automatically once secrets are added after approval)
+      - name: Check if SignPath secrets are configured
+        id: check-signpath
+        shell: pwsh
+        env:
+          SP_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SP_ORG: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:SP_TOKEN) -and -not [string]::IsNullOrWhiteSpace($env:SP_ORG)) {
+            "enabled=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "enabled=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Submit SignPath Foundation signing request
+        id: signpath
+        if: steps.check-signpath.outputs.enabled == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ secrets.SIGNPATH_PROJECT_SLUG || 'faimfixer' }}
+          signing-policy-slug: ${{ secrets.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: './dist/signed'
+
+      - name: Prepare final release files and SHA-256 checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "./dist/final" | Out-Null
+
+          if (Test-Path "./dist/signed/WinFixCleanPortable.exe") {
+            Copy-Item "./dist/signed/WinFixCleanPortable.exe" "./dist/final/WinFixCleanPortable.exe"
+            Write-Host "Using SignPath-SIGNED executable."
+            "SIGN_STATUS=Signed by SignPath Foundation" >> $env:GITHUB_ENV
+          } else {
+            Copy-Item "./dist/unsigned/WinFixCleanPortable.exe" "./dist/final/WinFixCleanPortable.exe"
+            Write-Host "Using UNSIGNED executable (SignPath secrets not configured yet)."
+            "SIGN_STATUS=Unsigned (Initial Open-Source Build)" >> $env:GITHUB_ENV
+          }
+
+          $hash = (Get-FileHash "./dist/final/WinFixCleanPortable.exe" -Algorithm SHA256).Hash
+          "$hash  WinFixCleanPortable.exe" | Out-File -FilePath "./dist/final/SHA256SUMS.txt" -Encoding ascii
+          Write-Host "SHA256: $hash"
+          "EXE_SHA256=$hash" >> $env:GITHUB_ENV
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
+          name: "WinFix & Clean Portable ${{ github.event.inputs.release_tag || github.ref_name }}"
+          body: |
+            ## WinFix & Clean Portable (${{ github.event.inputs.release_tag || github.ref_name }})
+
+            Standalone portable Windows utility — no installation required.
+
+            - **Code Signing Status:** ${{ env.SIGN_STATUS }}
+            - **SHA-256 (`WinFixCleanPortable.exe`):** `${{ env.EXE_SHA256 }}`
+
+            ### Included Tools
+            - Windows Repair & Missing System File Checker (`SFC`, `DISM`, `CBS.log` parser, System32 DLL check)
+            - Large Files & ZIP / ISO Finder (sorted largest-first, safe Recycle Bin delete)
+            - Custom-Location Duplicate Cleaner (SHA-256 verified)
+            - Multi-Threaded Smart Fast Copy (zero missing, zero duplicates, auto Better Quality or manual choice)
+            - Safe System Junk Cleaner & Portable Crash/Activity Logger
+          files: |
+            ./dist/final/WinFixCleanPortable.exe
+            ./dist/final/SHA256SUMS.txt

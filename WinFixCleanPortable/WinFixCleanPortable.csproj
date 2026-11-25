@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <AssemblyName>WinFixCleanPortable</AssemblyName>
+    <RootNamespace>WinFixCleanPortable</RootNamespace>
+    <Version>1.5.0</Version>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
+    <Product>FaimFixer — WinFix &amp; Clean Portable</Product>
+    <Description>Portable Windows Repair, Missing File Checker, Large &amp; ZIP/ISO Finder, Duplicate Cleaner, Smart Fast Copy, and Clean App Uninstaller</Description>
+    <Company>FaimFixer</Company>
+    <Authors>FaimFixer</Authors>
+    <Copyright>Copyright © 2026 FaimFixer</Copyright>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+</Project>

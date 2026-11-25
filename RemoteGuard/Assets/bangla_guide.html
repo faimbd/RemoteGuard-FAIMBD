@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>RemoteGuard • FAIM BD — সম্পূর্ণ বাংলা ব্যবহার নির্দেশিকা</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm 16mm 14mm;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Nirmala UI", "SolaimanLipi", "Vrinda", "Segoe UI", sans-serif;
+    color: #18181b;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.62;
+    font-size: 10.5pt;
+  }
+  .hero {
+    background: linear-gradient(135deg, #0b0b0e 0%, #1d170a 60%, #4b360e 100%);
+    color: #faf6ec;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border-bottom: 4px solid #d4af37;
+    margin-bottom: 18px;
+  }
+  .hero img {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    border: 2.5px solid #f5c542;
+    background: #0b0b0e;
+    flex-shrink: 0;
+  }
+  .hero-text h1 {
+    margin: 0 0 4px 0;
+    font-size: 20pt;
+    color: #f5c542;
+    letter-spacing: 0.3px;
+  }
+  .hero-text p {
+    margin: 0;
+    font-size: 10.5pt;
+    color: #e5dcc5;
+  }
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .badge {
+    background: rgba(245, 197, 66, 0.16);
+    border: 1px solid #d4af37;
+    color: #fde68a;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 8.8pt;
+    font-weight: 600;
+  }
+  .info-box {
+    background: #fdfaf2;
+    border-left: 4px solid #d4af37;
+    border-top: 1px solid #f1e4c0;
+    border-right: 1px solid #f1e4c0;
+    border-bottom: 1px solid #f1e4c0;
+    border-radius: 6px;
+    padding: 11px 14px;
+    margin-bottom: 16px;
+  }
+  .info-box strong {
+    color: #8a6407;
+  }
+  h2 {
+    font-size: 13pt;
+    color: #0b0b0e;
+    background: linear-gradient(90deg, #f8efd4 0%, #ffffff 100%);
+    border-left: 5px solid #d4af37;
+    padding: 6px 12px;
+    margin: 18px 0 10px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-after: avoid;
+  }
+  ol, ul {
+    margin: 6px 0 10px 0;
+    padding-left: 22px;
+  }
+  li {
+    margin-bottom: 6px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0 14px 0;
+  }
+  .card {
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
+    border-top: 3px solid #d4af37;
+    border-radius: 8px;
+    padding: 10px 12px;
+    page-break-inside: avoid;
+  }
+  .card h3 {
+    margin: 0 0 4px 0;
+    font-size: 10.5pt;
+    color: #7c5804;
+  }
+  .card p {
+    margin: 0;
+    font-size: 9.5pt;
+    color: #27272a;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px 0;
+    font-size: 9.6pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #141418;
+    color: #f5c542;
+    text-align: left;
+    padding: 7px 10px;
+    border: 1px solid #27272a;
+  }
+  td {
+    padding: 7px 10px;
+    border: 1px solid #d4d4d8;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td {
+    background: #faf9f5;
+  }
+  code {
+    background: #f4f1e6;
+    color: #7c5804;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    font-size: 9.2pt;
+  }
+  .step-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    background: #ffffff;
+    page-break-inside: avoid;
+  }
+  .step-title {
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+    font-size: 10.5pt;
+  }
+  .step-num {
+    display: inline-block;
+    background: #141418;
+    color: #f5c542;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    margin-right: 6px;
+    font-size: 9.2pt;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    border-left: 4px solid #d97706;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+  .footer {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1.5px solid #d4af37;
+    text-align: center;
+    font-size: 8.8pt;
+    color: #52525b;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <img src="file:///E:/Anti%20Gravity/Software/RemoteGuard/Assets/remoteguard_icon_master.png" alt="RemoteGuard FAIM BD Logo">
+    <div class="hero-text">
+      <h1>RemoteGuard • FAIM BD</h1>
+      <p>উইন্ডোজ পিসি ২৪/৭ সিকিউর রিমোট কন্ট্রোল — সম্পূর্ণ বাংলা ব্যবহার নির্দেশিকা</p>
+      <div class="badge-row">
+        <span class="badge">৩-স্তরের নিরাপত্তা</span>
+        <span class="badge">লক-স্ক্রিন অ্যাক্সেস</span>
+        <span class="badge">২৪/৭ অলওয়েজ-অন ও লিড গার্ড</span>
+        <span class="badge">ডাবল স্ক্রিন ও ল্যান্ডস্কেপ মাউস</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>কে এই সফটওয়্যারটি ব্যবহার করতে পারবেন?</strong><br>
+    যেকোনো ব্যক্তি সহজেই এটি ব্যবহার করতে পারবেন। কোনো কোডিং, আলাদা .NET ইনস্টলেশন বা রাউটার পোর্ট ফরওয়ার্ডিং প্রয়োজন নেই। প্রতিটি ব্যবহারকারীর নিজের পিসিতে আলাদা <strong>মাস্টার পাসওয়ার্ড</strong> ও নিজের <strong>ট্রাস্টেড মোবাইল</strong> সেট হবে — কোনো থার্ড-পার্টি অ্যাকাউন্ট বা সেন্ট্রাল সার্ভার নেই, ফলে আপনার গোপনীয়তা ১০০% সুরক্ষিত থাকে।
+  </div>
+
+  <h2>প্রয়োজনীয় ফাইলসমূহ</h2>
+  <table>
+    <tr>
+      <th style="width: 28%;">ডিভাইস</th>
+      <th style="width: 34%;">ফাইলের নাম</th>
+      <th>প্রয়োজনীয় সিস্টেম</th>
+    </tr>
+    <tr>
+      <td><strong>উইন্ডোজ পিসি (Host)</strong></td>
+      <td><code>RemoteGuard.Host.exe</code></td>
+      <td>Windows 10 বা Windows 11 (64-bit), অ্যাডমিনিস্ট্রেটর অনুমতি</td>
+    </tr>
+    <tr>
+      <td><strong>অ্যান্ড্রয়েড মোবাইল (App)</strong></td>
+      <td><code>RemoteGuard.apk</code></td>
+      <td>Android 8.0 বা তার উপরের যেকোনো ফোন (ফিঙ্গারপ্রিন্ট / স্ক্রিন লক সহ)</td>
+    </tr>
+  </table>
+
+  <h2>মূল নিরাপত্তার ৩টি স্তর (3-Layer Privacy Protection)</h2>
+  <div class="card-grid">
+    <div class="card">
+      <h3>১. ডিভাইস ট্রাস্ট (Device Trust)</h3>
+      <p>প্রথমবার পেয়ারিং করলে আপনার ফোনের Android Keystore-এ একটি গোপন 256-bit HMAC ক্রিপ্টোগ্রাফিক কী সংরক্ষিত হয়। অচেনা কোনো ফোন থেকে ঢোকা সম্ভব নয়।</p>
+    </div>
+    <div class="card">
+      <h3>২. মোবাইল ফিঙ্গারপ্রিন্ট (Biometric)</h3>
+      <p>প্রতিবার কানেক্ট করার আগে আপনার মোবাইলে ফিঙ্গারপ্রিন্ট বা বায়োমেট্রিক যাচাই করা বাধ্যতামূলক। অন্য কেউ আপনার আনলক ফোন নিলেও ঢুকতে পারবে না।</p>
+    </div>
+    <div class="card">
+      <h3>৩. শর্তসাপেক্ষ মাস্টার পাসওয়ার্ড</h3>
+      <p>একই ট্রাস্টেড ফোন ও একই আইপি (VPN ছাড়া) হলে <strong>পাসওয়ার্ড লাগবে না</strong> — শুধু ফিঙ্গারপ্রিন্টেই সরাসরি ঢোকা যাবে। তবে <strong>IP বদলালে, VPN চালু থাকলে, বা নতুন ডিভাইস হলে</strong> মাস্টার পাসওয়ার্ড চাইবে।</p>
+    </div>
+    <div class="card">
+      <h3>২৪/৭ অলওয়েজ-অন ও লিড গার্ড</h3>
+      <p>ল্যাপটপের ঢাকনা (Lid) বন্ধ রাখলেও পিসি <strong>Do Nothing</strong> মোডে চালু থাকবে এবং নিজে থেকে Sleep বা Hibernate হবে না। তবে আপনি নিজে ম্যানুয়ালি Sleep/Shutdown করলে তা স্বাভাবিকভাবেই কাজ করবে।</p>
+    </div>
+  </div>
+
+  <h2>ধাপ ১: উইন্ডোজ পিসি সেটআপ (প্রথমবার — মাত্র ২ মিনিট)</h2>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">১</span>সফটওয়্যার চালু করুন</div>
+    <code>RemoteGuard.Host.exe</code> ফাইলে ডাবল-ক্লিক করুন। Administrator অনুমতি (UAC) চাইলে <strong>Yes</strong> ক্লিক করুন।
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">২</span>মাস্টার পাসওয়ার্ড সেট করুন</div>
+    উপরের <strong>Security &amp; Trusted Devices</strong> ট্যাবে যান। একটি শক্তিশালী পাসওয়ার্ড লিখে <strong>Set / Update Master Password</strong> বাটনে ক্লিক করুন। (এই পাসওয়ার্ডটি PBKDF2-SHA256 হ্যাশ হিসেবে নিরাপদে সংরক্ষিত থাকে।)
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">৩</span>২৪/৭ অলওয়েজ-অন এবং লক-স্ক্রিন সার্ভিস চালু করুন</div>
+    <strong>24/7 Power &amp; Lock-Screen Service</strong> ট্যাবে যান এবং নিচের দুটি বাটনে ক্লিক করুন:
+    <ul>
+      <li><strong>Apply 24/7 &amp; Lid-Close Policy:</strong> ল্যাপটপের লিড বন্ধ করলেও পিসি অন থাকবে এবং অটো স্লিপ/হাইবারনেট বন্ধ হবে। (পরে আগের অবস্থায় ফিরতে <em>Restore Default Windows Power</em> ক্লিক করা যাবে।)</li>
+      <li><strong>Install &amp; Start 24/7 Windows Service:</strong> এটি LocalSystem ব্যাকগ্রাউন্ড সার্ভিস ইনস্টল করে, যাতে পিসি <strong>লক থাকা অবস্থায়</strong> বা রিস্টার্ট হলেও মোবাইল থেকে সরাসরি লক-স্ক্রিন দেখে আনলক ও কন্ট্রোল করা যায়।</li>
+    </ul>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">৪</span>ইন্টারনেট বা ওয়াই-ফাই কানেকশন প্রস্তুত করুন</div>
+    <strong>Connect &amp; Internet</strong> ট্যাবে যান:
+    <ul>
+      <li><strong>যেকোনো জায়গা থেকে (মোবাইল ডেটা / অন্য ওয়াই-ফাই):</strong> <strong>Start Internet Tunnel (Cloudflare)</strong> বাটনে ক্লিক করুন। প্রথমবার <code>cloudflared.exe</code> নিজেই ডাউনলোড হয়ে একটি নিরাপদ <code>wss://xxxx.trycloudflare.com/ws</code> লিংক তৈরি হবে।</li>
+      <li><strong>শুধুমাত্র একই ওয়াই-ফাই (LAN):</strong> <strong>Allow Firewall Port</strong> বাটনে ক্লিক করুন (উপরের <code>ws://192.168.x.x:9443/ws</code> লিংকটি ব্যবহৃত হবে)।</li>
+    </ul>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">৫</span>৬-ডিজিট কোড ও QR কোড তৈরি করুন</div>
+    ডান পাশে <strong>Generate 6-Digit Code &amp; QR</strong> বাটনে ক্লিক করুন। স্ক্রিনে একটি ৬ সংখ্যার কোড ও QR কোড দেখাবে (যা ১০ মিনিট কার্যকর থাকে)।
+  </div>
+
+  <h2>ধাপ ২: অ্যান্ড্রয়েড মোবাইল সেটআপ (প্রথমবার — মাত্র ১ মিনিট)</h2>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">১</span>অ্যাপ ইনস্টল করুন</div>
+    আপনার অ্যান্ড্রয়েড ফোনে <code>RemoteGuard.apk</code> ফাইলটি ওপেন করে ইনস্টল করুন। (<em>Install unknown apps</em> অনুমতি চাইলে Allow দিন।)
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">২</span>পিসির QR কোড স্ক্যান করুন</div>
+    অ্যাপ ওপেন করে <strong>Scan PC QR Code</strong> বাটনে ট্যাপ করুন এবং পিসির স্ক্রিনের QR কোডটি স্ক্যান করুন। এতে <strong>Server URL</strong> এবং <strong>6-Digit Pairing Code</strong> স্বয়ংক্রিয়ভাবে বসে যাবে।
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">৩</span>ফোনটি ট্রাস্ট ও পেয়ার করুন</div>
+    <ul>
+      <li>নিচের <strong>PC Master Password</strong> ঘরে আপনার মাস্টার পাসওয়ার্ড লিখুন।</li>
+      <li><strong>Pair &amp; Trust This Phone (Fingerprint)</strong> বাটনে ট্যাপ করুন এবং ফোনে ফিঙ্গারপ্রিন্ট দিন।</li>
+      <li>পিসির স্ক্রিনে কনফার্মেশন পপ-আপ এলে <strong>Yes</strong> ক্লিক করুন।</li>
+    </ul>
+    ব্যস! আপনার মোবাইল এখন ট্রাস্টেড ডিভাইস হিসেবে যুক্ত হয়ে গেছে।
+  </div>
+
+  <h2>ধাপ ৩: প্রতিদিনের ব্যবহার ও কন্ট্রোল গাইড</h2>
+  <table>
+    <tr>
+      <th style="width: 30%;">ফিচার / বাটন</th>
+      <th>কাজ ও ব্যবহারের নিয়ম</th>
+    </tr>
+    <tr>
+      <td><strong>Connect with Fingerprint</strong></td>
+      <td>প্রতিবার অ্যাপ খুলে এই বাটনে ট্যাপ করে ফিঙ্গারপ্রিন্ট দিলেই সরাসরি পিসি স্ক্রিন চলে আসবে (একই IP ও VPN ছাড়া কোনো পাসওয়ার্ড লাগবে না)।</td>
+    </tr>
+    <tr>
+      <td><strong>লক করা পিসি আনলক</strong></td>
+      <td>টুলবারে <code>Keys</code> &rarr; <code>Wake Screen</code> বা <code>Ctrl + Alt + Del</code> ট্যাপ করুন &rarr; <code>Keyb</code> বাটনে গিয়ে উইন্ডোজ PIN/পাসওয়ার্ড লিখে <code>⏎</code> (Enter) চাপুন।</td>
+    </tr>
+    <tr>
+      <td><strong>ডাবল স্ক্রিন সুইচ (<code>S1</code>)</strong></td>
+      <td>টুলবারের সোনালী <code>S1</code> বাটনে ট্যাপ করে <strong>Screen 1</strong>, <strong>Screen 2</strong> অথবা <strong>All Screens (Combined)</strong> নির্বাচন করতে পারবেন।</td>
+    </tr>
+    <tr>
+      <td><strong>ল্যান্ডস্কেপ মোড (<code>Land/Port</code>)</strong></td>
+      <td>সহজে মাউস ব্যবহারের জন্য ডিফল্টভাবে Landscape মোড চালু থাকে। টুলবারের <code>Land / Port</code> বাটন দিয়ে যেকোনো সময় স্ক্রিন ঘোরানো যাবে।</td>
+    </tr>
+    <tr>
+      <td><strong>মাউস মোড (ডিফল্ট)</strong></td>
+      <td>স্ক্রিনে আঙুল ঘোরান (সোনালী কার্সার নড়বে), ১ বার ট্যাপ = Left Click, ডাবল ট্যাপ = Double Click, <code>R-Clk</code> বা লং-প্রেস = Right Click, ২ আঙুলে টানলে Scroll।</td>
+    </tr>
+    <tr>
+      <td><strong>Touch ও Keyboard (Yes/No)</strong></td>
+      <td>অ্যাপের হোম স্ক্রিনের <strong>Remote Control Options (Yes / No)</strong> সুইচ থেকে অথবা লাইভ সেশনে <code>Keys</code> মেনু থেকে যেকোনো সময় Touch এবং Keyboard অন/অফ করা যাবে।</td>
+    </tr>
+    <tr>
+      <td><strong>কানেকশন ডায়াগনস্টিক লগ</strong></td>
+      <td>কানেক্ট হতে কোনো সমস্যা হলে <strong>Test Connection</strong> ট্যাপ করুন এবং নিচের <strong>Connection Diagnostic Log</strong> থেকে <strong>Copy Log</strong> দিয়ে ত্রুটির কারণ দেখুন।</td>
+    </tr>
+  </table>
+
+  <div class="warn-box">
+    <strong>গুরুত্বপূর্ণ টিপস (সমস্যা সমাধান):</strong><br>
+    ১. একই ওয়াই-ফাই-তে কানেক্ট না হলে পিসিতে <strong>Allow Firewall Port</strong> বাটনে একবার ক্লিক করুন।<br>
+    ২. মোবাইল ডেটা থেকে কানেক্ট করতে হলে পিসিতে <strong>Start Internet Tunnel (Cloudflare)</strong> চালু থাকতে হবে এবং ফোনে <code>wss://...trycloudflare.com/ws</code> লিংকটি ব্যবহার করতে হবে।<br>
+    ৩. ফ্রি Cloudflare Quick Tunnel-এর লিংক পিসি রিস্টার্ট করলে বদলে যায়। স্থায়ী (Permanent) লিংকের জন্য Cloudflare Zero Trust-এর ফ্রি Named Tunnel Token ব্যবহার করতে পারেন।<br>
+    ৪. কোনো ট্রাস্টেড ফোন হারিয়ে গেলে পিসির <strong>Security &amp; Trusted Devices</strong> ট্যাব থেকে সাথে সাথে <strong>Revoke Selected Device</strong> ক্লিক করে অ্যাক্সেস বন্ধ করে দিন।
+  </div>
+
+  <div class="footer">
+    <strong>RemoteGuard • FAIM BD (faimbd.com)</strong> — প্রাইভেসি-ফার্স্ট ২৪/৭ উইন্ডোজ রিমোট কন্ট্রোল সিস্টেম
+  </div>
+
+</body>
+</html>

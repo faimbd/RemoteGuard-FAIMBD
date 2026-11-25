@@ -1,0 +1,145 @@
+name: Build, Sign & Release RemoteGuard (FAIM BD)
+
+on:
+  push:
+    tags:
+      - 'remoteguard-v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release version tag (e.g. remoteguard-v1.0.0)'
+        required: true
+        default: 'remoteguard-v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish standalone RemoteGuard Windows Host EXE (win-x64)
+        shell: pwsh
+        run: |
+          dotnet publish "RemoteGuard/RemoteGuard.Host/RemoteGuard.Host.csproj" `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o "./dist/unsigned"
+
+          ls ./dist/unsigned
+
+      - name: Upload unsigned Windows Host artifact for SignPath verification
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: RemoteGuard-Host-unsigned
+          path: ./dist/unsigned/RemoteGuard.Host.exe
+
+      # SignPath Foundation Code Signing (runs automatically once secrets are added after approval)
+      - name: Check if SignPath secrets are configured
+        id: check-signpath
+        shell: pwsh
+        env:
+          SP_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SP_ORG: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:SP_TOKEN) -and -not [string]::IsNullOrWhiteSpace($env:SP_ORG)) {
+            "enabled=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "enabled=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Submit SignPath Foundation signing request
+        id: signpath
+        if: steps.check-signpath.outputs.enabled == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ secrets.SIGNPATH_REMOTEGUARD_PROJECT_SLUG || 'remoteguard' }}
+          signing-policy-slug: ${{ secrets.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: './dist/signed'
+
+      - name: Setup Java 17 & Gradle for Android APK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build Android APK
+        shell: pwsh
+        working-directory: RemoteGuard/RemoteGuard.Android
+        run: |
+          gradle assembleRelease --no-daemon --console=plain
+
+      - name: Prepare final release files and SHA-256 checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "./dist/final" | Out-Null
+
+          if (Test-Path "./dist/signed/RemoteGuard.Host.exe") {
+            Copy-Item "./dist/signed/RemoteGuard.Host.exe" "./dist/final/RemoteGuard.Host.exe"
+            Write-Host "Using SignPath-SIGNED executable."
+            "SIGN_STATUS=Signed by SignPath Foundation" >> $env:GITHUB_ENV
+          } else {
+            Copy-Item "./dist/unsigned/RemoteGuard.Host.exe" "./dist/final/RemoteGuard.Host.exe"
+            Write-Host "Using UNSIGNED executable (SignPath secrets not configured yet)."
+            "SIGN_STATUS=Unsigned (Initial Open-Source Build)" >> $env:GITHUB_ENV
+          }
+
+          Copy-Item "RemoteGuard/RemoteGuard.Android/app/build/outputs/apk/release/app-release.apk" "./dist/final/RemoteGuard.apk"
+
+          $exeHash = (Get-FileHash "./dist/final/RemoteGuard.Host.exe" -Algorithm SHA256).Hash
+          $apkHash = (Get-FileHash "./dist/final/RemoteGuard.apk" -Algorithm SHA256).Hash
+          @(
+            "$exeHash  RemoteGuard.Host.exe"
+            "$apkHash  RemoteGuard.apk"
+          ) | Out-File -FilePath "./dist/final/SHA256SUMS.txt" -Encoding ascii
+
+          "EXE_SHA256=$exeHash" >> $env:GITHUB_ENV
+          "APK_SHA256=$apkHash" >> $env:GITHUB_ENV
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
+          name: "RemoteGuard • FAIM BD (${{ github.event.inputs.release_tag || github.ref_name }})"
+          body: |
+            ## RemoteGuard • FAIM BD (${{ github.event.inputs.release_tag || github.ref_name }})
+
+            Privacy-first 24/7 Windows Remote Control with Dedicated Android App.
+
+            - **Windows Code Signing Status:** ${{ env.SIGN_STATUS }}
+            - **SHA-256 (`RemoteGuard.Host.exe`):** `${{ env.EXE_SHA256 }}`
+            - **SHA-256 (`RemoteGuard.apk`):** `${{ env.APK_SHA256 }}`
+
+            ### Highlights
+            - **3-Layer Privacy:** Cryptographic Device Trust + Android Fingerprint + Conditional Master Password (only on IP change, VPN, or new device)
+            - **24/7 Always-On & Lock-Screen Service:** Laptop Lid Close = Do Nothing, Never Auto-Sleep/Hibernate, LocalSystem Lock-Screen access
+            - **Dual-Screen Switcher & Landscape Mouse Mode:** Switch Screen 1 / Screen 2 / All Screens, Landscape default, Touch & Keyboard Yes/No toggles
+            - **Zero Port Forwarding:** Built-in Cloudflare Tunnel + QR Code Pairing + Diagnostic Log
+          files: |
+            ./dist/final/RemoteGuard.Host.exe
+            ./dist/final/RemoteGuard.apk
+            ./dist/final/SHA256SUMS.txt

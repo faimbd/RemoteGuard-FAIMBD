@@ -1,0 +1,25 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.cache
+.vs/
+
+# Local published portable binaries & runtime logs (built cleanly by GitHub Actions CI)
+Portable/
+RemoteGuard/Release/
+RemoteGuard/Signing/
+RemoteGuard/RemoteGuard.Android/.gradle/
+RemoteGuard/RemoteGuard.Android/local.properties
+RemoteGuard/RemoteGuard.Android/app/build/
+*.pfx
+*.log
+WinFixClean_Log.txt*
+WinFixRepairReport_*.txt
+WinFixFastCopyLog_*.txt
+
+# OS clutter
+Thumbs.db
+Desktop.ini
+.DS_Store
